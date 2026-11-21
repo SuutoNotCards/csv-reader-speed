@@ -10,6 +10,7 @@ import { setFlagsFromString } from 'node:v8';
 // V8's incremental marking off, set before solve.js is imported so all of its work runs under it (the rules: the house
 // baseline runs with --no-incremental-marking, and an entry may tune V8's flags too).
 setFlagsFromString('--no-incremental-marking');
+setFlagsFromString('--single-threaded-gc');
 // On Node 26 (the harness's), no TurboFan: Maglev's code reads the text about as fast, and TurboFan's compiles of the
 // parser (tens of ms each, on the one CPU) cost more than they save. Node 22's Maglev is slower, so it keeps TurboFan.
 if (Number(process.versions.node.split('.')[0]) >= 26) setFlagsFromString('--no-turbofan');
@@ -20,7 +21,7 @@ const { run } = (await import(new URL('./solve.js', import.meta.url).href)) as {
 const INPUT_DIR = process.env.MAKEFUN_INPUT_DIR ?? '/input';
 const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-const cases = JSON.parse(readFileSync(join(INPUT_DIR, 'cases.json'), 'utf8')) as { id: string; input: unknown }[];
+const cases = JSON.parse(readFileSync(join(INPUT_DIR, 'cases.json')).toString()) as { id: string; input: unknown }[];
 // Each answer is written as it is made: the file is the bytes of JSON.stringify of the answers' array, "[" then each
 // answer's JSON joined by "," then "]", without holding every answer or one long string at once.
 const fd = openSync(join(OUTPUT_DIR, 'answers.json'), 'w');
