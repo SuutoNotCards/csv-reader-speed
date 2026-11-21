@@ -10,6 +10,9 @@ import { setFlagsFromString } from 'node:v8';
 // V8's incremental marking off, set before solve.js is imported so all of its work runs under it (the rules: the house
 // baseline runs with --no-incremental-marking, and an entry may tune V8's flags too).
 setFlagsFromString('--no-incremental-marking');
+// On Node 26 (the harness's), no TurboFan: Maglev's code reads the text about as fast, and TurboFan's compiles of the
+// parser (tens of ms each, on the one CPU) cost more than they save. Node 22's Maglev is slower, so it keeps TurboFan.
+if (Number(process.versions.node.split('.')[0]) >= 26) setFlagsFromString('--no-turbofan');
 
 /** solve.js, imported by its URL (a .js module carries no types) and typed by its contract. */
 const { run } = (await import(new URL('./solve.js', import.meta.url).href)) as { run: (input: unknown) => unknown };
