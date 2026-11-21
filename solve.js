@@ -173,7 +173,7 @@ export function run(input) {
 {
   const t = '﻿a,b,c\r\n"x""y",z\rq,"m\r\nn"\n\r\n"p"j,k\n1,2\n1,2,3,4\n\n"u\nv",w\r"o,"';
   const t2 = 'id,name,note\r\n12,"a, b",x\r\n3,c,"d"\r\n"e",f,"g""h"\r\n4,5,6\r\n';
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 60; i++) {
     run({ text: t, header: true });
     run({ text: t, header: false });
     run({ text: t2, header: true });
@@ -181,5 +181,9 @@ export function run(input) {
   }
   // The optimizing compile runs on another thread; small calls let its code be installed before the first real case,
   // so that case does not start in the interpreter and compile a second (OSR) copy.
-  for (let i = 0; i < 3000; i++) run({ text: t2, header: true });
+  const cell = new Int32Array(new SharedArrayBuffer(4));
+  for (let i = 0; i < 4; i++) {
+    Atomics.wait(cell, 0, 0, 20);
+    run({ text: t2, header: true });
+  }
 }
