@@ -11,6 +11,10 @@ import { setFlagsFromString } from 'node:v8';
 // baseline runs with --no-incremental-marking, and an entry may tune V8's flags too).
 setFlagsFromString('--no-incremental-marking');
 setFlagsFromString('--no-turbo-loop-peeling');
+// Every answer stays alive until it is written, so each scavenge copies survivors; a young generation that may grow to
+// 64 MB, and grows in one step, runs fewer of them (10 down to 6 on the practice set). Both are read when it grows.
+setFlagsFromString('--max-semi-space-size=64');
+setFlagsFromString('--semi-space-growth-factor=16');
 // On Node 26 (the harness's), no TurboFan: Maglev's code reads the text about as fast, and TurboFan's compiles of the
 // parser (tens of ms each, on the one CPU) cost more than they save. Node 22's Maglev is slower, so it keeps TurboFan.
 if (Number(process.versions.node.split('.')[0]) >= 26) setFlagsFromString('--no-turbofan');
